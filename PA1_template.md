@@ -1,8 +1,3 @@
----
-output:
-  html_document:
-    keep_md: yes
----
 Reproducible Research: Peer Assessment 1
 ==========================================
 
@@ -15,7 +10,8 @@ This device collects data at 5 minute intervals through out the day.
 
 ##  General Program Housekeeping
 
-```{r}
+
+```r
 ##Set working Directory
         projectWD <- "C:/Users/DKSrivastava/RepData_PeerAssessment1/" 
         setwd(projectWD)
@@ -25,10 +21,15 @@ This device collects data at 5 minute intervals through out the day.
         library(data.table)
         library(lattice)
         library(knitr)
+```
 
+```
+## Warning: package 'knitr' was built under R version 3.1.1
+```
+
+```r
 ## R Script to be used for generating final HTML amd md documents.
         #knit2html("PA1_template.Rmd")
-
 ```
   
   
@@ -37,19 +38,48 @@ This device collects data at 5 minute intervals through out the day.
 
 This section covers reading and processing of "Activity Monitoring Data".  
 
-```{r}
+
+```r
 # Reading the Activity Monitoring Data.
         activity_data <- read.csv("./activity.csv", header=TRUE)
 
 # Verify headers
         names(activity_data)
+```
 
+```
+## [1] "steps"    "date"     "interval"
+```
+
+```r
 # Display few rows of data
         head(activity_data)
+```
 
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
+```r
 # Remove all NA's
         clean_data <- activity_data[!is.na(activity_data$steps),]
         head(clean_data)
+```
+
+```
+##     steps       date interval
+## 289     0 2012-10-02        0
+## 290     0 2012-10-02        5
+## 291     0 2012-10-02       10
+## 292     0 2012-10-02       15
+## 293     0 2012-10-02       20
+## 294     0 2012-10-02       25
 ```
   
   
@@ -58,23 +88,37 @@ This section covers reading and processing of "Activity Monitoring Data".
 
 This section calculates the **Mean** and **Median** of total number of steps taken per day.
 
-```{r}
+
+```r
 # Draw a histogram of total number of steps taken each day.
         total_steps <- aggregate(steps ~ date, data = clean_data, sum)
         hist(total_steps$steps, col=rainbow(10))
 ```
 
-```{r computetime1, echo=TRUE}
+![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
+
+
+```r
 # Calculate the "mean" of total number of steps taken per day
         cmn <- mean(total_steps$steps)  ## calculated mean
         cmn
+```
 
+```
+## [1] 10766
+```
+
+```r
         cmdn <- median(total_steps$steps)  ## calculated median
         cmdn
 ```
 
-- The **mean** of total number of steps taken each day is **`r cmn`** steps.
-- The **median** of total number of steps taken each day is **`r cmdn`** steps.
+```
+## [1] 10765
+```
+
+- The **mean** of total number of steps taken each day is **1.0766 &times; 10<sup>4</sup>** steps.
+- The **median** of total number of steps taken each day is **10765** steps.
 
   
 ## What is the average daily activity pattern?
@@ -82,23 +126,31 @@ This section calculates the **Mean** and **Median** of total number of steps tak
 
 1. Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
+
+```r
         steps_interval <- aggregate(steps ~ interval, data = clean_data, mean, na.rm = TRUE)
         plot(steps ~ interval, data = steps_interval, type = "l", 
              xlab="5-minute Interval", ylab="Average Steps Taken")
 ```
 
+![plot of chunk unnamed-chunk-4](./PA1_template_files/figure-html/unnamed-chunk-4.png) 
+
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r computetime2, echo=TRUE}
+
+```r
 # Calculated interval
         cintvl <- steps_interval[which.max(steps_interval$steps), ]$interval
         cintvl
 ```
 
+```
+## [1] 835
+```
 
-As can be seen, the **`r cintvl` th** time interval corresponds to the maximum number of steps. 
+
+As can be seen, the **835 th** time interval corresponds to the maximum number of steps. 
 
   
   
@@ -109,19 +161,25 @@ This section deals with the data issuse arising from missing values (coded as 'N
   
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with 'NA's)
 
-```{r computetime3, echo=TRUE}
+
+```r
 # Calculate total number of rows with NA's
         crows <- sum(is.na(activity_data$steps))
         crows
 ```
 
-- Total **`r crows`** rows has missing data in the given dataset.
+```
+## [1] 2304
+```
+
+- Total **2304** rows has missing data in the given dataset.
         
 2. **Data Strategy Used**: Replace all missing values with the mean for that 5-minute interval.
 
 
 
-```{r}
+
+```r
 # Get the mean steps for particular 5-minute interval
         mean_interval <- function(interval) {
                 steps_interval[steps_interval$interval == interval, ]$steps
@@ -131,7 +189,8 @@ This section deals with the data issuse arising from missing values (coded as 'N
   
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 # Create a new dataset that is equal to the original dataset but with the missing data filled in.
         upd_activity_data <- activity_data  # Make a new dataset with the original data
         count = 0  # Count the number of data filled in
@@ -145,29 +204,47 @@ This section deals with the data issuse arising from missing values (coded as 'N
 # Display total coult of values replaced
         cat("Total ", count, "NA values were filled.\n")
 ```
+
+```
+## Total  2304 NA values were filled.
+```
   
   
 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
   
-```{r}
+
+```r
 # Draw a histogram of total number of steps taken each day.
         upd_total_steps <- aggregate(steps ~ date, data = upd_activity_data, sum)
         hist(upd_total_steps$steps, col=rainbow(10))
 ```
 
+![plot of chunk unnamed-chunk-7](./PA1_template_files/figure-html/unnamed-chunk-7.png) 
 
-```{r computetime4, echo=TRUE}
+
+
+```r
 # Calculate the "mean" of total number of steps taken per day for updated activity dataset
         cmn_upd <- mean(upd_total_steps$steps)  ## calculated mean
         cmn_upd
+```
 
+```
+## [1] 10766
+```
+
+```r
         cmdn_upd <- median(upd_total_steps$steps)  ## calculated median
         cmdn_upd
 ```
 
-- The **mean** of total number of steps taken each day is **`r cmn_upd`** steps.
-- The **median** of total number of steps taken each day is **`r cmdn_upd`** steps.
+```
+## [1] 10766
+```
+
+- The **mean** of total number of steps taken each day is **1.0766 &times; 10<sup>4</sup>** steps.
+- The **median** of total number of steps taken each day is **1.0766 &times; 10<sup>4</sup>** steps.
   
 **Note:** The mean value remains same because we replaced missing values with the  mean value for that particular 5-min interval. The median value shows a little difference and it depends on where the missing values were.  
   
@@ -178,7 +255,8 @@ This section deals with the data issuse arising from missing values (coded as 'N
 
 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 # Create a two new factor variables
         upd_activity_data$day_type <- ifelse(weekdays(as.Date(upd_activity_data$date)) 
                                              %in% c("Saturday", "Sunday"), "weekend", "weekday")  
@@ -200,7 +278,8 @@ This section deals with the data issuse arising from missing values (coded as 'N
 
 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r}
+
+```r
 # make the panel plot for weekdays and weekends
         new_dataframe <- as.data.frame(rbind(mean_steps_weekday, mean_steps_weekend))
         new_dataframe$mean_steps <- as.numeric(as.character(new_dataframe$mean_steps))
@@ -209,6 +288,8 @@ This section deals with the data issuse arising from missing values (coded as 'N
         xyplot (mean_steps~intervals|type, data=new_dataframe, type="l",layout=c(1, 2), as.table=T, 
                 xlab="5-minute Interval", ylab="Average Steps")
 ```
+
+![plot of chunk unnamed-chunk-9](./PA1_template_files/figure-html/unnamed-chunk-9.png) 
 
 - **Observed Activity Pattern:** A visual inspection of above plotting indicates that the average number of steps taken during weekends are higher than the average number of steps taken during weekdays for most of time intervals.
 
